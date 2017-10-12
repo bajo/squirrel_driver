@@ -21,6 +21,7 @@
 #include <visualization_msgs/Marker.h>
 #include <vector>
 #include <robotino_msgs/ReturnJointStates.h>
+#include <math.h>
 
 #include "ViewController.h"
 
@@ -40,6 +41,7 @@ ViewController::ViewController(std::string name)
 
   rel_pan_pub_ = nh_.advertise<std_msgs::Float64>("/neck_pan_controller/rel_command", 0, false);
   rel_tilt_pub_ = nh_.advertise<std_msgs::Float64>("/neck_tilt_controller/rel_command", 0, false);
+  //rel_head_pub_ = nh_.advertise<std_msgs::Float64>("/head_controller/rel_command", 0, false);
  
   look_image_srv_ = nh_.advertiseService("/squirrel_view_controller/look_at_image_position", &ViewController::lookAtImagePosition, this);
   look_srv_ = nh_.advertiseService("/squirrel_view_controller/look_at_position", &ViewController::lookAtPosition, this);
@@ -77,15 +79,18 @@ std::vector<double> ViewController::pose2PanTilt(geometry_msgs::PoseStamped pose
   float rel_pan = atan2(pan.point.y,pan.point.x);
   v.push_back(rel_pan);
   float rel_tilt = -atan2(tilt.point.y,tilt.point.x);
-  if (rel_tilt < -M_PI/2)
+  ROS_INFO("relative pan angle %lf", rel_pan);
+  ROS_INFO("relative tilt angle %lf", rel_tilt);
+  if (fabs(rel_pan) > M_PI)
   {
-    rel_tilt += 0.0;
+    rel_pan -= 2*M_PI
+    ROS_INFO("relative pan angle %lf", rel_pan);
   }
   v.push_back(rel_tilt);
 
-  ROS_DEBUG("Pan: x: %f, y: %f", pan.point.x, pan.point.y);
-  ROS_DEBUG("Tilt: x: %f, y: %f", tilt.point.x, tilt.point.y);
-  ROS_DEBUG("Moving camera relative to pan: %f, tilt: %f ", rel_pan, rel_tilt);
+  ROS_INFO("Pan: x: %f, y: %f", pan.point.x, pan.point.y);
+  ROS_INFO("Tilt: x: %f, y: %f", tilt.point.x, tilt.point.y);
+  ROS_INFO("Moving camera relative to pan: %f, tilt: %f ", rel_pan, rel_tilt);
 
   return v;
 }
