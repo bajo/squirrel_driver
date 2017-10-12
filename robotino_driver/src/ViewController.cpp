@@ -76,14 +76,14 @@ std::vector<double> ViewController::pose2PanTilt(geometry_msgs::PoseStamped pose
     ROS_ERROR("%s", ex.what());
     ros::Duration(1.0).sleep();
   }
-  float rel_pan = atan2(pan.point.y,pan.point.x);
+  float rel_pan = -atan2(pan.point.y,pan.point.x);
   v.push_back(rel_pan);
-  float rel_tilt = -atan2(tilt.point.y,tilt.point.x);
+  float rel_tilt = atan2(tilt.point.y,tilt.point.x);
   ROS_INFO("relative pan angle %lf", rel_pan);
   ROS_INFO("relative tilt angle %lf", rel_tilt);
   if (fabs(rel_pan) > M_PI)
   {
-    rel_pan -= 2*M_PI
+    rel_pan -= 2*M_PI;
     ROS_INFO("relative pan angle %lf", rel_pan);
   }
   v.push_back(rel_tilt);
