@@ -47,6 +47,7 @@ ViewController::ViewController(std::string name)
   clear_srv_ = nh_.advertiseService("/squirrel_view_controller/clear_fixation", &ViewController::clearFixation, this);
   reset_srv_ = nh_.advertiseService("/squirrel_view_controller/reset_positions", &ViewController::resetPosition, this);
   vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "visualization_marker", 0 );
+  
   ROS_INFO("ViewController ready...");
 }
 
@@ -176,6 +177,7 @@ void ViewController::movePanTilt(float pan, float tilt)
   tiltMsg.data = tilt;
   if (std::isfinite(panMsg.data) && std::isfinite(tiltMsg.data))
   {
+    ROS_INFO("Moving to pan: %f, tilt: %f (rad)", panMsg.data, tiltMsg.data);
     pan_pub_.publish(panMsg);
     tilt_pub_.publish(tiltMsg);
   }
@@ -348,6 +350,9 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "squirrel_view_controller");
 
   ViewController fixate(ros::this_node::getName());
+  ros::Duration duration(.025);
+  duration.sleep();
+  fixate.init();
   ros::spin();
 
   return 0;
